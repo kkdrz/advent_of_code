@@ -1,3 +1,4 @@
+import distancecalculator.ManhattanDistanceCalculator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import wire.Point
@@ -20,7 +21,9 @@ internal class ClosestIntersectionPointFinderTest {
         )
 
         val closestPoint =
-            ClosestIntersectionPointFinder().getClosestIntersectionPoint(points, ManhattanDistanceCalculator())
+            ClosestIntersectionPointFinder().getClosestIntersectionPoint(points,
+                ManhattanDistanceCalculator()
+            )
 
         assertEquals(Point(5, 5), closestPoint!!.key)
         assertEquals(10, closestPoint.value)

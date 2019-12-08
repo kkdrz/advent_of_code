@@ -27,25 +27,54 @@ data class StraightPath(val from: Point, val to: Point) {
             )
         }
 
+    val steps: Int = when(lineType) {
+        VERTICAL -> Math.abs(from.y - to.y)
+        HORIZONTAL -> Math.abs(from.x - to.x)
+    }
+
     fun getInterceptionPoints(paths: List<StraightPath>): List<Point> =
         paths.mapNotNull { getInterceptionPoint(it) }
 
     fun getInterceptionPoint(otherPath: StraightPath): Point? =
         when (lineType) {
             otherPath.lineType -> null
-            VERTICAL -> if (from.x in otherPath.from.x toward otherPath.to.x && otherPath.from.y in from.y toward to.y) Point(
-                from.x,
-                otherPath.from.y
-            ) else null
-            HORIZONTAL -> if (from.y in otherPath.from.y toward otherPath.to.y && otherPath.from.x in from.x toward to.x) Point(
+            VERTICAL ->
+                if (this.from.x.between(otherPath.from.x, otherPath.to.x)
+                    && otherPath.from.y.between(this.from.y, this.to.y)
+                )
+                    Point(from.x, otherPath.from.y)
+                else null
+            HORIZONTAL -> if (this.from.y.between(
+                    otherPath.from.y,
+                    otherPath.to.y
+                ) && otherPath.from.x.between(this.from.x, this.to.x)
+            ) Point(
                 otherPath.from.x,
                 from.y
             ) else null
         }
 
+    private fun Int.between(from: Int, to: Int): Boolean = this in from toward to
+
     private infix fun Int.toward(to: Int): IntProgression {
         val step = if (this > to) -1 else 1
         return IntProgression.fromClosedRange(this, to, step)
+    }
+
+    fun includes(point: Point): Boolean = when (lineType) {
+        VERTICAL -> point.x == this.from.x && point.y.between(this.from.y, this.to.y)
+        HORIZONTAL -> point.y == this.from.y && point.x.between(this.from.x, this.to.x)
+    }
+
+    fun getStepsForPoint(point: Point): Int {
+        if (!includes(point)) {
+            throw java.lang.IllegalArgumentException("Path does not contain point $point")
+        }
+
+        return when(lineType) {
+            VERTICAL -> Math.abs(point.y - this.from.y)
+            HORIZONTAL -> Math.abs(point.x - this.from.x)
+        }
     }
 }
 
