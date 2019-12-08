@@ -1,6 +1,8 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import wire.Point
+import wire.WireBuilder
 import java.nio.file.Paths
 import kotlin.streams.toList
 
@@ -9,7 +11,7 @@ internal class InstructionsInterpreterTest {
     private val instructionsInterpreter = InstructionsInterpreter()
 
     @Test
-    fun getWiresFromFile() {
+    fun should_read_wires_from_files() {
 
         val expectedWire1 = WireBuilder(Point(0, 0))
             .right(10)
@@ -35,4 +37,6 @@ internal class InstructionsInterpreterTest {
         assertTrue(wires.contains(expectedWire1))
         assertTrue(wires.contains(expectedWire2))
     }
+
+
 }

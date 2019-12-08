@@ -1,9 +1,13 @@
+import wire.Point
+import wire.Wire
+import wire.WireBuilder
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.streams.toList
 
 class InstructionsInterpreter {
 
-    fun getWiresFromFile(file: Path) = Files.lines(file).map { getWire(Point(0, 0), it) }
+    fun getWiresFromFile(file: Path) = Files.lines(file).map { getWire(Point(0, 0), it) }.toList()
 
     private fun getWire(startingPoint: Point, instructions: String): Wire {
 
