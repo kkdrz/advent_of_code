@@ -5,9 +5,20 @@ fun main() {
             .readLines()
             .map { Seat(it) }
 
+
     seats.forEach { println("Row: ${it.row}, Column: ${it.column}, Id: ${it.id()}") }
 
-    println(seats.map { it.id() }.maxOrNull())
+    println("Max: ${seats.map { it.id() }.maxOrNull()}")
+
+    val missingSeatId = seats
+            .sortedBy { it.id() }
+            .reduce { acc, next ->
+                if (next.id() - acc.id() == 1) {
+                    next
+                } else acc
+            }.id() + 1
+
+    println("Missing: $missingSeatId")
 }
 
 class Seat(encoded: String) {
