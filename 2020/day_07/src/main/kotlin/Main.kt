@@ -8,8 +8,18 @@ fun main() {
     val searchedBagColor = "shiny gold"
 
     val count = getParentBags(bags, searchedBagColor).count()
+    println("Part 1: $count")
 
-    println(count)
+    println("Part 2: ${getNumberOfInternalBags(bags, getBagByColor(bags, searchedBagColor))}")
+
+}
+
+fun getBagByColor(bags: List<Bag>, color: String): Bag = bags.first { it.color == color }
+
+fun getNumberOfInternalBags(bags: List<Bag>, bag: Bag): Int {
+    return bag.content.map { it.value }.sum() + bag.content.entries.map {
+        getNumberOfInternalBags(bags, getBagByColor(bags, it.key)) * it.value
+    }.sum()
 }
 
 private fun getParentBags(bags: List<Bag>, searchedBagColor: String): List<Bag> {
