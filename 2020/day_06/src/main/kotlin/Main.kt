@@ -9,8 +9,12 @@ fun main() {
     var sum = 0
 
     while (scanner.hasNext()) {
-        val declaration = scanner.next().replace("\r\n", "")
-        sum += declaration.toCharArray().distinct().count()
+        val groupDeclaration = scanner.next()
+
+        sum += groupDeclaration.split("\r\n")
+                .map { it.toSet() }
+                .reduce{ acc, next -> acc.intersect(next) }
+                .count()
     }
 
     println(sum)
