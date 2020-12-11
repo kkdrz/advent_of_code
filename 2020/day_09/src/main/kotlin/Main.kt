@@ -5,13 +5,36 @@ fun main() {
 
     val preambleLength = 25
 
-    data.forEachIndexed { index, it ->
-        if (index >= preambleLength) {
-            val isCorrect = isSumOfNumbersBetweenIndexes(data, index - preambleLength, index - 1, it)
-            if (!isCorrect) println("Part 1 error: $it")
+    val errorValue = findErrorValue(data, preambleLength)
+    println("Part 1: $errorValue")
+    for (i in 0..data.size) {
+
+        var currentSum: Long = data[i]
+        var j = i
+        while (currentSum < errorValue) {
+            currentSum += data[++j]
+        }
+
+        if (currentSum == errorValue) {
+            val max = data.slice(i..j).maxOrNull()
+            val min = data.slice(i..j).minOrNull()
+            println("Max: $max")
+            println("Min: $min")
+            println("Part 2: ${max!!.plus(min!!)}")
+            return
         }
     }
 
+}
+
+private fun findErrorValue(data: List<Long>, preambleLength: Int): Long {
+    data.forEachIndexed { index, it ->
+        if (index >= preambleLength) {
+            val isCorrect = isSumOfNumbersBetweenIndexes(data, index - preambleLength, index - 1, it)
+            if (!isCorrect) return it
+        }
+    }
+    return 0
 }
 
 fun isSumOfNumbersBetweenIndexes(data: List<Long>, startIndex: Int, endIndex: Int, number: Long): Boolean {
