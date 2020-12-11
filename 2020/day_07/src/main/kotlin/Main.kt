@@ -1,55 +1,47 @@
 import java.io.File
 
 fun main() {
-    val bags = File("src/main/resources/input.txt")
+    val instructions = File("src/main/resources/input.txt")
             .readLines()
-            .map { decodeBag(it) }
+            .map { decodeInstruction(it) }
 
-    val searchedBagColor = "shiny gold"
-
-    val count = getParentBags(bags, searchedBagColor).count()
-    println("Part 1: $count")
-
-    println("Part 2: ${getNumberOfInternalBags(bags, getBagByColor(bags, searchedBagColor))}")
-
+    Executor(instructions).execute()
 }
 
-fun getBagByColor(bags: List<Bag>, color: String): Bag = bags.first { it.color == color }
-
-fun getNumberOfInternalBags(bags: List<Bag>, bag: Bag): Int {
-    return bag.content.map { it.value }.sum() + bag.content.entries.map {
-        getNumberOfInternalBags(bags, getBagByColor(bags, it.key)) * it.value
-    }.sum()
-}
-
-private fun getParentBags(bags: List<Bag>, searchedBagColor: String): List<Bag> {
-    val parentBags = bags.filter { it.contains(searchedBagColor) }
-
-    if (parentBags.isEmpty()) {
-        return emptyList()
+class Executor(private val instructions: List<Instruction>) {
+    var acc = 0
+    private var runLog = mutableMapOf<Int, Int>().let {
+        for (i in 0..instructions.size) {
+            it[i] = 0
+        }
+        it
     }
 
-    return parentBags + parentBags.flatMap { getParentBags(bags, it.color) }.distinct()
+    fun execute() {
+        execute(0)
+    }
+
+    private fun execute(instructionId: Int) {
+        val instruction = instructions[instructionId]
+
+        runLog[instructionId] = runLog[instructionId]!! + 1
+
+        if (runLog[instructionId]!! > 1) {
+            println(acc)
+            return
+        }
+
+        when (instruction.type) {
+            "nop" -> execute(instructionId + 1)
+            "acc" -> {
+                acc += instruction.value
+                execute(instructionId + 1)
+            }
+            "jmp" -> execute(instructionId + instruction.value)
+        }
+    }
 }
 
-fun decodeBag(description: String): Bag {
+fun decodeInstruction(code: String) = Instruction(code.substring(0, 3), code.substring(4).toInt())
 
-    val bagColor = description.substring(0, description.indexOf(" bags contain"))
-
-    val content = if (description.contains("no other bags"))
-        emptyMap()
-    else
-        description.substring(description.indexOf("bags contain") + 13)
-                .replace("(bags?|\\.)".toRegex(), "")
-                .split(", ")
-                .map { excerpt -> excerpt.substring(excerpt.indexOf(" ") + 1, excerpt.length - 1).trim() to excerpt.substring(0, excerpt.indexOf(" ")).trim().toInt() }
-                .toMap()
-
-    return Bag(bagColor, content)
-}
-
-data class Bag(val color: String, val content: Map<String, Int>) {
-
-    fun contains(color: String): Boolean = content.contains(color)
-
-}
+data class Instruction(val type: String, val value: Int)
