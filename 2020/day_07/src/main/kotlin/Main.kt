@@ -5,7 +5,22 @@ fun main() {
             .readLines()
             .map { decodeInstruction(it) }
 
-    Executor(instructions).execute()
+    val executor1 = Executor(instructions)
+    executor1.execute()
+    println("Part 1: ${executor1.acc}")
+
+    val nopOrJmp = mutableListOf<Int>()
+    instructions.forEachIndexed { index, instruction -> if (instruction.type == "nop" || instruction.type == "jmp") nopOrJmp.add(index) }
+
+    nopOrJmp.forEach { i ->
+        val instructionsModified = instructions.toMutableList()
+        instructionsModified[i] = Instruction(if (instructionsModified[i].type == "jmp") "nop" else "jmp", instructionsModified[i].value)
+
+        val executor = Executor(instructionsModified)
+        if (executor.execute()) {
+            println("Part 2: ${executor.acc}")
+        }
+    }
 }
 
 class Executor(private val instructions: List<Instruction>) {
@@ -17,28 +32,32 @@ class Executor(private val instructions: List<Instruction>) {
         it
     }
 
-    fun execute() {
-        execute(0)
-    }
+    fun execute(): Boolean = execute(0)
 
-    private fun execute(instructionId: Int) {
+    private fun execute(instructionId: Int): Boolean {
+
+        if (instructionId >= instructions.size) {
+            return true
+        }
+
         val instruction = instructions[instructionId]
-
         runLog[instructionId] = runLog[instructionId]!! + 1
 
         if (runLog[instructionId]!! > 1) {
-            println(acc)
-            return
+            return false
         }
 
         when (instruction.type) {
-            "nop" -> execute(instructionId + 1)
+            "nop" -> return execute(instructionId + 1)
             "acc" -> {
                 acc += instruction.value
-                execute(instructionId + 1)
+                return execute(instructionId + 1)
             }
-            "jmp" -> execute(instructionId + instruction.value)
+            "jmp" -> return execute(instructionId + instruction.value)
         }
+
+        println("Smth went wrong")
+        return false
     }
 }
 
